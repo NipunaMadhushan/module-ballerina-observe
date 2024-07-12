@@ -130,6 +130,7 @@ tasks.withType(PublishToMavenRepository) { task ->
         if (task.state.failure?.cause?.message?.contains('409')) {
             logger.warn("409 Conflict encountered for ${task.publication.groupId}:${task.publication.artifactId}:${task.publication.version}. Skipping publication.")
             task.state.outcome = TaskOutcome.SKIPPED
+            task.state.failure = null
         }
     }
 }

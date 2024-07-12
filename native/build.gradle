@@ -91,6 +91,24 @@ publishing {
     }
 }
 
+tasks.withType(PublishToMavenRepository) { task ->
+    task.doFirst {
+        logger.lifecycle("Attempting to publish ${task.publication.groupId}:${task.publication.artifactId}:${task.publication.version}")
+    }
+    task.onlyIf { true }
+}
+
+tasks.withType(PublishToMavenRepository) { task ->
+    task.outputs.upToDateWhen { false }  // Always run the task
+    task.doLast {
+        if (task.state.failure?.cause?.message?.contains('409')) {
+            logger.warn("409 Conflict encountered for ${task.publication.groupId}:${task.publication.artifactId}:${task.publication.version}. Skipping publication.")
+            task.state.outcome = TaskOutcome.SKIPPED
+            task.state.failure = null
+        }
+    }
+}
+
 compileJava {
     doFirst {
         options.compilerArgs = [

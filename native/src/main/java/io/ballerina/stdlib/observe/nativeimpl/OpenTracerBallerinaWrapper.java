@@ -32,6 +32,8 @@ import io.opentelemetry.api.trace.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -54,9 +56,12 @@ public class OpenTracerBallerinaWrapper {
     private final TracersStore tracerStore;
     private final boolean enabled;
     private final Map<Long, ObserverContext> observerContextMap = new HashMap<>();
+    private final ThreadLocal<Deque<Long>> threadLocalSpanIdStack =
+            ThreadLocal.withInitial(ArrayDeque::new);
     private final AtomicLong spanIdCounter = new AtomicLong();
 
     private static final int SYSTEM_TRACE_INDICATOR = -1;
+    private static final int CUSTOM_TRACE_INDICATOR = -3;
     static final int ROOT_SPAN_INDICATOR = -2;
 
     private OpenTracerBallerinaWrapper() {
@@ -76,6 +81,7 @@ public class OpenTracerBallerinaWrapper {
         TracingUtils.startObservation(observerContext, isClient);
         long spanId = this.spanIdCounter.getAndIncrement();
         observerContextMap.put(spanId, observerContext);
+        threadLocalSpanIdStack.get().push(spanId);
         return spanId;
     }
 
@@ -129,6 +135,19 @@ public class OpenTracerBallerinaWrapper {
             }
             ObserveUtils.setObserverContextToCurrentFrame(env, observerContext);
             return startSpan(observerContext, true, spanName);
+        } else if (parentSpanId == CUSTOM_TRACE_INDICATOR) {
+            Long lastSpanId = threadLocalSpanIdStack.get().peek();
+            if (lastSpanId != null) {
+                ObserverContext lastObserverContext = observerContextMap.get(lastSpanId);
+                if (lastObserverContext != null) {
+                    observerContext.setParent(lastObserverContext);
+                }
+            } else {
+                if (prevObserverContext != null) {
+                    observerContext.setParent(prevObserverContext);
+                }
+            }
+            return startSpan(observerContext, true, spanName);
         } else if (parentSpanId != ROOT_SPAN_INDICATOR) {
             ObserverContext parentOContext = observerContextMap.get(parentSpanId);
             if (parentOContext == null) {
@@ -161,6 +180,7 @@ public class OpenTracerBallerinaWrapper {
             TracingUtils.stopObservation(observerContext);
             observerContext.setFinished();
             observerContextMap.remove(spanId);
+            threadLocalSpanIdStack.get().remove(spanId);
             return true;
         } else {
             return false;
@@ -188,6 +208,7 @@ public class OpenTracerBallerinaWrapper {
             TracingUtils.stopObservation(observerContext);
             observerContext.setFinished();
             observerContextMap.remove(spanId);
+            threadLocalSpanIdStack.get().remove(spanId);
             return true;
         } else {
             return false;

@@ -31,7 +31,7 @@ import io.ballerina.runtime.api.values.BString;
 
 public class StartSpan {
     public static Object startSpan(Environment env, BString spanName, Object tags, long parentSpanId) {
-        if (parentSpanId < -1) {
+        if (parentSpanId < -3) {
             return ErrorCreator.createError(
                     StringUtils.fromString(("The given parent span ID " + parentSpanId + " " + "is invalid.")));
         } else {

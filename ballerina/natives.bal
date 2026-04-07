@@ -42,6 +42,25 @@ public isolated function startSpan(string spanName, map<string>? tags = (), int 
     name: "startSpan"
 } external;
 
+# Add a key-value pair as a tag to the root.
+#
+# + tagKey - Key of the tag
+# + tagValue - Value of the tag
+# + return - An error if adding the tag failed; otherwise null
+public isolated function addTag(string tagKey, string tagValue) returns error? = @java:Method {
+    'class: "io.ballerina.stdlib.observe.nativeimpl.AddTag",
+    name: "addTag"
+} external;
+
+# Get the value of a given key of a tag.
+#
+# + tagKey - Key of the tag
+# + return - The value of the tag if present; otherwise null
+public isolated function getTagValue(string tagKey) returns string? = @java:Method {
+    'class: "io.ballerina.stdlib.observe.nativeimpl.GetTagValue",
+    name: "getTagValue"
+} external;
+
 # Add a key value pair as a tag to the span.
 #
 # + spanId - Id of span to which the tags should be added or -1 to add tags to the current active span
@@ -70,6 +89,16 @@ public isolated function addTagToMetrics(string tagKey, string tagValue) returns
 public isolated function finishSpan(int spanId) returns error? = @java:Method {
     'class: "io.ballerina.stdlib.observe.nativeimpl.FinishSpan",
     name: "finishSpan"
+} external;
+
+# Finish the current span.
+#
+# + spanId - Id of span to finish
+# + 'error - Error to be recorded in the span
+# + return - An error if an error occurred while finishing the span
+public isolated function finishSpanWithError(int spanId, error 'error) returns error? = @java:Method {
+    'class: "io.ballerina.stdlib.observe.nativeimpl.FinishSpan",
+    name: "finishSpanWithError"
 } external;
 
 # Retrieve a map of span context data.

@@ -57,7 +57,7 @@ configurations {
 }
 
 dependencies {
-    externalJars(group: 'org.testng', name: 'testng', version: "${testngVersion}")
+    externalJars "io.opentelemetry:opentelemetry-api:${openTelemetryVersion}"
 }
 
 task updateTomlFiles {

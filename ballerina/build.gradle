@@ -57,7 +57,7 @@ configurations {
 }
 
 dependencies {
-    externalJars "io.opentelemetry:opentelemetry-api:${openTelemetryVersion}"
+    externalJars "io.opentelemetry:opentelemetry-common:${openTelemetryVersion}"
 }
 
 task updateTomlFiles {

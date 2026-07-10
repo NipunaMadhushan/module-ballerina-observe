@@ -17,7 +17,7 @@ path = "../native/build/libs/observe-native-@project.version@.jar"
 groupId = "ballerina"
 artifactId = "observe"
 
-[[platform.java21.dependency]]
-groupId = "io.opentelemetry"
-artifactId = "opentelemetry-common"
-version = "@opentelemetry.version@"
+#[[platform.java21.dependency]]
+#groupId = "io.opentelemetry"
+#artifactId = "opentelemetry-common"
+#version = "@opentelemetry.version@"

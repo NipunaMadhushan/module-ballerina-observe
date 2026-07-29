@@ -35,4 +35,4 @@ version = "1.63.0"
 [[platform.java21.dependency]]
 groupId = "io.opentelemetry.semconv"
 artifactId = "opentelemetry-semconv"
-version = "1.42.0"
+version = "1.21.0-alpha"
